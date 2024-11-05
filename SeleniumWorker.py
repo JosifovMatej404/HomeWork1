@@ -4,7 +4,7 @@ from datetime import datetime
 import time
 
 def get_current_date():
-    return datetime.now().strftime("%Y-%m-%d")
+    return datetime.now().strftime("%m/%d/%Y")
 
 def fetch_data_with_dates_and_key(start_date, end_date, key):
     # Set up the WebDriver (use the path to your ChromeDriver)
@@ -40,3 +40,5 @@ def fetch_data_with_dates_and_key(start_date, end_date, key):
 
     # Close the browser
     driver.quit()
+
+fetch_data_with_dates_and_key("11/24/2023", "12/24/2023", "REPL")

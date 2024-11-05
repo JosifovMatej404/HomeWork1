@@ -4,7 +4,7 @@ class CommandHandler:
     def __init__(self, command_gui, drawing_gui):
         self.command_gui = command_gui
         self.drawing_gui = drawing_gui
-        self.pharser = Pharser(command_gui)
+        self.pharser = Pharser()
 
     def clear_history(self):
         # Clear the command history
@@ -29,7 +29,8 @@ class CommandHandler:
         else:
             self.command_gui.history_text.insert("end", "\nSearching for " + input)
             data = self.pharser.get_data(input)
-            self.drawing_gui.populate_table(data)
+            if input == "suppliers": self.drawing_gui.populate_table(data)
+            else: self.drawing_gui.populate_supplier_table(data)
         self.command_gui.lock_history()
         return
 

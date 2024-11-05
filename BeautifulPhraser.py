@@ -2,12 +2,9 @@ from bs4 import BeautifulSoup
 import RequestHandler
 
 class Pharser:
-    def __init__(self, gui):
-        self.gui = gui
-
     def get_data(self, target):
         if target == "suppliers": return self.get_data_array("https://www.mse.mk/mk/issuers/free-market")
-        else: self.try_get_supplier_data("https://www.mse.mk/en/stats/symbolhistory/" + str(target))
+        else: self.get_data_array("https://www.mse.mk/en/stats/symbolhistory/" + str(target))
 
     def get_data_array(self, path):
         html = RequestHandler.get_html_page(path)
