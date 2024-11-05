@@ -34,6 +34,6 @@ drawing_gui.chart_frame = right_frame
 drawing_gui.draw_chart()  # Call a method to redraw the chart in the new frame
 
 # Instantiate the command GUI (command input area)
-command_gui = CommandGUI(left_frame)  # Command area in the left frame
+command_gui = CommandGUI(left_frame, drawing_gui)  # Command area in the left frame
 
 root.mainloop()

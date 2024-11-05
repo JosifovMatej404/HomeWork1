@@ -2,8 +2,9 @@ import tkinter as tk
 from CommandHandler import CommandHandler
 
 class CommandGUI:
-    def __init__(self, parent):
+    def __init__(self, parent, drawing_gui):
         self.parent = parent
+        self.drawing_gui = drawing_gui
 
         # Create the text widget for command input
         self.history_text = tk.Text(parent, height=15, wrap='word', state='normal')
@@ -23,7 +24,7 @@ class CommandGUI:
         self.locked_index = self.history_text.index("end-1c")
 
         # Initialize the command handler
-        self.command_handler = CommandHandler(self)
+        self.command_handler = CommandHandler(self, drawing_gui)
 
     def restrict_cursor(self, event=None):
         # Ensure the cursor does not move before the locked index
