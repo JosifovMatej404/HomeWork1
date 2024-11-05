@@ -37,8 +37,8 @@ class DrawingGUI:
             self.tree.heading("Column" + str(index+1), text=headers.headers[index])
         self.tree.pack(fill='x')
 
-    def get_headers(self):
-        return BeautifulPhraser.Pharser.get_headers()
+    def get_headers(self,path):
+        return BeautifulPhraser.Pharser.get_headers(path)
 
     def draw_chart(self):
         if self.chart_frame:
@@ -52,7 +52,7 @@ class DrawingGUI:
             self.canvas.get_tk_widget().pack(fill='both', expand=True)
 
     def populate_table(self, data):
-        self.initialize_headers(self.get_headers())
+        self.initialize_headers(self.get_headers("https://www.mse.mk/mk/issuers/free-market"))
         formated_data = self.format_data(data)
         for index, row in formated_data.iterrows():
             self.tree.insert("", "end", values=(row['Column1'], row['Column2'], row['Column3'], row['Column4']))
