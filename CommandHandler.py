@@ -43,7 +43,8 @@ class CommandHandler:
         commands = {
             "clear": self.clear_history,
             "help": self.help_response,
-            "get": lambda: self.get_data(command_array[1] if len(command_array) > 1 else "none")
+            "get": lambda: self.get_data(command_array[1] if len(command_array) > 1 else "none"),
+            "update": lambda: self.update_data(command_array[1] if len(command_array) > 1 else "none")
         }
         # Execute the command or provide a default response
         commands.get(command_array[0].lower(), self.default_response)()
