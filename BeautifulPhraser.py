@@ -2,28 +2,29 @@ from bs4 import BeautifulSoup
 import RequestHandler
 
 class Pharser:
+    def __init__(self, parent):
+        self.parent = parent
+
     def get_data(self, target):
         if target == "suppliers": return self.get_data_array("https://www.mse.mk/mk/issuers/free-market")
-        else: self.get_data_array("https://www.mse.mk/en/stats/symbolhistory/" + str(target))
+        else: return self.get_data_array("https://www.mse.mk/en/stats/symbolhistory/" + str(target))
 
     def get_data_array(self, path):
         html = RequestHandler.get_html_page(path)
         soup = BeautifulSoup(html, 'html.parser')
         rows = soup.find_all("tr")
-        header_data = soup.find_all("th")
+        header_data = self.get_headers(path)
         data_array = [] #data object for all companies
+
+        if len(header_data.headers) <= 0: self.parent.fail_response()
 
         for row in rows:
             data = row.find_all("td")
             data_object = []
-
-            if len(data) < len(header_data): continue
-
-            if len(data) > 7: data_object = SupplierData(data)
+            if len(data) < len(header_data.headers): continue
+            if len(header_data.headers) > 7: data_object = SupplierData(data)
             else: data_object = Data(data)
-            
             data_array.append(data_object) 
-
         return data_array
     
     @staticmethod
@@ -33,14 +34,12 @@ class Pharser:
         header_data = soup.find_all("th")
         return HeaderData(header_data)
 
-    def try_get_supplier_data(self, path):
-        pass
-
 class SupplierData:
     def __init__(self, row):
         data_array = []
         for data in row:
-            data_array.append(data.string)
+            if not data.string: data_array.append("NULL")
+            else: data_array.append(data.string.strip())
         self.date = data_array[0]
         self.last_trade_price = data_array[1]
         self.max = data_array[2]
@@ -55,7 +54,7 @@ class Data:
     def __init__(self, row):
         data_array = []
         for data in row:
-            data_array.append(data.string)
+            data_array.append(data.string.strip())
         self.code = data_array[0]
         self.description = data_array[1]
         self.isin = data_array[2]

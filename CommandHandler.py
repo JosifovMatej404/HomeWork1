@@ -4,7 +4,7 @@ class CommandHandler:
     def __init__(self, command_gui, drawing_gui):
         self.command_gui = command_gui
         self.drawing_gui = drawing_gui
-        self.pharser = Pharser()
+        self.pharser = Pharser(self)
 
     def clear_history(self):
         # Clear the command history
@@ -22,6 +22,10 @@ class CommandHandler:
         self.command_gui.history_text.insert("end", "\nclear - clears the console\nget <name> - get specified supplier\nget suppliers - gets all available suppliers")
         self.command_gui.lock_history()
         return
+    
+    def fail_response(self):
+        self.command_gui.history_text.insert("end", "\nFailed to get data. Data doesnt exist or it's inaccessible.")
+        return
 
     def get_data(self, input):
         if input == "none":  
@@ -30,7 +34,7 @@ class CommandHandler:
             self.command_gui.history_text.insert("end", "\nSearching for " + input)
             data = self.pharser.get_data(input)
             if input == "suppliers": self.drawing_gui.populate_table(data)
-            else: self.drawing_gui.populate_supplier_table(data)
+            else: self.drawing_gui.populate_supplier_table(data, input)
         self.command_gui.lock_history()
         return
 

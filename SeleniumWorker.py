@@ -40,5 +40,3 @@ def fetch_data_with_dates_and_key(start_date, end_date, key):
 
     # Close the browser
     driver.quit()
-
-fetch_data_with_dates_and_key("11/24/2023", "12/24/2023", "REPL")
