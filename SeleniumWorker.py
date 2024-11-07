@@ -7,11 +7,13 @@ from datetime import datetime
 import threading
 
 class SeleniumWorker:
-    @staticmethod
-    def get_current_date():
-        return datetime.now().strftime("%m/%d/%Y")
+    def __init__(self):
+        self.html = ""
 
-    def fetch_data_with_dates_and_key(start_date, end_date, key, callback=None):
+    def get_current_date(self):
+        return datetime.now().strftime("%d.%m.%y")
+
+    def fetch_data_with_dates_and_key(self, start_date, end_date, key):
         def task():
             # Set up Chrome options for headless mode
             chrome_options = Options()
@@ -25,10 +27,10 @@ class SeleniumWorker:
             try:
                 print("Getting website...")
                 # Construct the URL with the key
-                url = f"https://www.mse.mk/en/stats/symbolhistory/{key}"
+                url = f"https://www.mse.mk/mk/stats/symbolhistory/{key}"
                 driver.get(url)
 
-                print("Waiting for buttons...")
+                print("Waiting for date inputs to load...")
                 # Wait until input elements are interactable
                 WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.NAME, "FromDate"))
@@ -37,7 +39,6 @@ class SeleniumWorker:
                     EC.element_to_be_clickable((By.NAME, "ToDate"))
                 )
                 
-                print("Clicking buttons...")
                 # Set the start and end date
                 input_element1 = driver.find_element(By.NAME, "FromDate")
                 input_element1.clear()
@@ -47,26 +48,24 @@ class SeleniumWorker:
                 input_element2.clear()
                 input_element2.send_keys(end_date)
 
+                print("Triggering data fetch...")
                 # Locate and trigger the button click
                 button = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.CLASS_NAME, "btn-primary-sm"))
                 )
                 driver.execute_script("arguments[0].click();", button)  # Use JavaScript to click
 
-                print("Waiting for results table...")
-                
-                # Optionally, wait for results to load if there’s a specific class or ID to check
+                print("Waiting for data to load...")
+                # Wait for the data table to load
                 WebDriverWait(driver, 20).until(
                     EC.presence_of_all_elements_located((By.TAG_NAME, "td"))
                 )
 
-                print("Found results!")
+                # Get page source after data is fully loaded
+                page_html = driver.page_source
+                print("Data loaded successfully!")
 
-                # Call the callback function with the driver instance if specified
-                if callback:
-                    callback(driver)
-
-                print("Finished.")
+                self.html = page_html
 
             except Exception as e:
                 print(f"An error occurred: {e}")
@@ -77,15 +76,5 @@ class SeleniumWorker:
         thread = threading.Thread(target=task)
         thread.start()
 
-    # Define a callback function to process the data
-    def process_data(driver):
-        # Example: Extract data from the page
-        print("Processing data...")
-        # Locate and extract the text or tables, then close the driver when done
-        # data_element = driver.find_element(By.CLASS_NAME, "result-class")
-        # print(data_element.text)
-        # driver.quit()
-
-    # Example usage
-    #end_date = get_current_date()
-    #fetch_data_with_dates_and_key("06.10.2024", end_date, "REPL", callback=process_data)
+    def return_html(self):
+        return self.html

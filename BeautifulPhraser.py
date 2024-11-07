@@ -9,6 +9,9 @@ class Pharser:
         if target == "suppliers": return self.get_data_array("https://www.mse.mk/mk/issuers/free-market")
         else: return self.get_data_array("https://www.mse.mk/en/stats/symbolhistory/" + str(target))
 
+    def get_data_from_html(self, target, html):
+        return self.get_data_array_from_html("https://www.mse.mk/en/stats/symbolhistory/" + str(target), html)
+
     def get_data_array(self, path):
         html = RequestHandler.get_html_page(path)
         soup = BeautifulSoup(html, 'html.parser')
@@ -26,6 +29,25 @@ class Pharser:
             else: data_object = Data(data)
             data_array.append(data_object) 
         return data_array
+    
+    def get_data_array_from_html(self, path, html):
+        print("HTML" + str(html))
+        soup = BeautifulSoup(html, 'html.parser')
+        rows = soup.find_all("tr")
+        header_data = self.get_headers(path)
+        data_array = [] #data object for all companies
+
+        if len(header_data.headers) <= 0: self.parent.fail_response()
+
+        for row in rows:
+            data = row.find_all("td")
+            data_object = []
+            if len(data) < len(header_data.headers): continue
+            if len(header_data.headers) > 7: data_object = SupplierData(data)
+            else: data_object = Data(data)
+            data_array.append(data_object) 
+        return data_array
+    
     
     @staticmethod
     def get_headers(path):

@@ -5,6 +5,7 @@ import os
 import glob
 import re
 import datetime
+import time
 
 class PipeFilterSystem:
     def initialize_system(self, parent, filters):
@@ -72,16 +73,19 @@ class LastFilter(Filter):
         data_array = []
         year = datetime.datetime.now().year
         phraser = BeautifulPhraser.Pharser(self.command_handler)
+        worker = SeleniumWorker.SeleniumWorker()
 
         for item in data:
             if item[1] == None:
                 for i in range(9):
-                    worker = SeleniumWorker.SeleniumWorker()
-                    worker.fetch_data_with_dates_and_key(f"01.01.{year-10+i}", f"01.01.{year-9+i}", self.merge_data(phraser.get_data(item[0])))
+                    worker.fetch_data_with_dates_and_key(f"01.01.{year-10+i}", f"01.01.{year-9+i}", item[0])
+                    while worker.html == "": time.sleep(1)
+                    self.merge_data(phraser.get_data_from_html(item[0], worker.return_html()))
 
-            worker = SeleniumWorker.SeleniumWorker()
-            worker.fetch_data_with_dates_and_key(f"01.01.{year}", SeleniumWorker.SeleniumWorker.get_current_date(), self.merge_data(phraser.get_data(item[0])))
-    
+            worker.fetch_data_with_dates_and_key(f"01.01.{year}", worker.get_current_date(), item[0])
+            while worker.html == "": time.sleep(1)
+            self.merge_data(phraser.get_data_from_html(item[0], worker.return_html()))
+            
             data_item = [self.return_data(), item[0]]
             data_array.append(data_item)
             FileManager.save_data_to_csv(data_item[0], item[0])
