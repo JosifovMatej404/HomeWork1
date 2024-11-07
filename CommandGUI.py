@@ -32,21 +32,18 @@ class CommandGUI:
         if self.history_text.compare(current_index, "<", self.locked_index):
             self.history_text.mark_set("insert", self.locked_index)
             return "break"
-        return
 
     def prevent_deletion(self, event=None):
         # Prevent deletion of committed text
         current_index = self.history_text.index("insert")
         if self.history_text.compare(current_index, "<=", self.locked_index):
             return "break"  # Stop the event from propagating
-        return
 
     def prevent_overwrite(self, event=None):
         # Allow typing in the current line only
         current_index = self.history_text.index("insert")
         if self.history_text.compare(current_index, "<", self.locked_index):
             return "break"  # Prevent typing in previous commands
-        return
 
     def select_current_line(self, event=None):
         # Custom behavior for Ctrl + A to select only the current input line

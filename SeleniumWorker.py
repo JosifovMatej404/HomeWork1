@@ -7,9 +7,7 @@ from datetime import datetime
 import threading
 
 class SeleniumWorker:
-    def __init__(self, callback):
-        self.callback = callback
-
+    @staticmethod
     def get_current_date():
         return datetime.now().strftime("%m/%d/%Y")
 

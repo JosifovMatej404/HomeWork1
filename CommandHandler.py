@@ -1,4 +1,5 @@
 from BeautifulPhraser import Pharser
+from PipeFilterSystem import *
 
 class CommandHandler:
     def __init__(self, command_gui, drawing_gui):
@@ -11,21 +12,17 @@ class CommandHandler:
         self.command_gui.history_text.delete("1.0", "end")  # Clear all text
         self.command_gui.history_text.insert('end', ">>> ")  # Reset prompt
         self.command_gui.locked_index = self.command_gui.history_text.index("end-1c")  # Reset the locked index
-        return
 
     def default_response(self):
         self.command_gui.history_text.insert("end", "\nCommand not recognised. Input \"help\" for more info.")
         self.command_gui.lock_history()
-        return
 
     def help_response(self):
         self.command_gui.history_text.insert("end", "\nclear - clears the console\nget <name> - get specified supplier\nget suppliers - gets all available suppliers")
         self.command_gui.lock_history()
-        return
-    
+
     def fail_response(self):
         self.command_gui.history_text.insert("end", "\nFailed to get data. Data doesnt exist or it's inaccessible.")
-        return
 
     def get_data(self, input):
         if input == "none":  
@@ -36,7 +33,15 @@ class CommandHandler:
             if input == "suppliers": self.drawing_gui.populate_table(data)
             else: self.drawing_gui.populate_supplier_table(data, input)
         self.command_gui.lock_history()
-        return
+
+    def update_data(self, query):
+        filter1 = CodeFilter(self)
+        filter2 = DateFilter(self)
+        filter3 = LastFilter(self)
+        if query == "all":
+            pfs = PipeFilterSystem()
+            pfs.initialize_system(self, [filter1, filter2, filter3])
+            pfs.filter_data()
 
     def execute_command(self, command):
         command_array = command.split()
