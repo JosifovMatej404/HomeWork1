@@ -25,7 +25,9 @@ def get_field_names(data):
         pass
 
 def save_data_to_csv(data, code):
-    """Save formatted supplier data to a CSV file named after the code."""
+    """Save formatted supplier data to a CSV file named after the code, appending data without rewriting headers."""
+
+    # Define the directory and create it if it doesn't exist
     directory = "supplier_data"
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -33,14 +35,19 @@ def save_data_to_csv(data, code):
     # Define the filename based on the code and the current date
     filename = os.path.join(directory, f"{code}_data_{datetime.datetime.now().date()}.csv")
 
+    # Check if the file already exists and has content
+    file_exists = os.path.isfile(filename)
+    has_content = file_exists and os.path.getsize(filename) > 0
 
-    data = format_supplier_data(data)
-
-
-    # Write data to CSV file
-    with open(filename, mode="w", newline="") as file:
+    # Write data to CSV file in append mode
+    with open(filename, mode="a", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=data[0].keys())
-        writer.writeheader()
+        
+        # Only write headers if the file doesn't already have content
+        if not has_content:
+            writer.writeheader()
+        
+        # Append data rows
         writer.writerows(data)
 
     print(f"Data saved successfully for code '{code}' in '{filename}'.")

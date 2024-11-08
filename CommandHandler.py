@@ -5,11 +5,7 @@ class CommandHandler:
     def __init__(self, command_gui, drawing_gui):
         self.command_gui = command_gui
         self.drawing_gui = drawing_gui
-<<<<<<< HEAD
-        self.pharser = Pharser()
-=======
         self.pharser = Pharser(self)
->>>>>>> 3e6bd582d79d20839ee03362c85030522a44d74f
 
     def clear_history(self):
         # Clear the command history
