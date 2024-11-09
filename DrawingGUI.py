@@ -18,7 +18,17 @@ class DrawingGUI:
         self.fig, self.ax = plt.subplots()
 
 
+<<<<<<< HEAD
+    def initialize_headers(self, headers):
+        print(headers.headers)
+        for index in range(0, len(headers.headers)):
+            self.tree.heading("Column" + str(index+1), text=headers.headers[index])
+        self.tree.pack(fill='x')
+
+    def get_headers(self,path):
+=======
     def get_headers(self, path):
+>>>>>>> 3e6bd582d79d20839ee03362c85030522a44d74f
         return BeautifulPhraser.Pharser.get_headers(path)
 
     def draw_chart(self):
@@ -42,6 +52,12 @@ class DrawingGUI:
         
 
     def populate_table(self, data):
+<<<<<<< HEAD
+        self.initialize_headers(self.get_headers("https://www.mse.mk/mk/issuers/free-market"))
+        formated_data = self.format_data(data)
+        for index, row in formated_data.iterrows():
+            self.tree.insert("", "end", values=(row['Column1'], row['Column2'], row['Column3'], row['Column4']))
+=======
         # Get headers for all suppliers from the specified URL
         headers = self.get_headers("https://www.mse.mk/mk/issuers/free-market")
 
@@ -71,6 +87,7 @@ class DrawingGUI:
             self.tree.insert("", "end", values=values)
 
         self.tree.pack(fill='x')
+>>>>>>> 3e6bd582d79d20839ee03362c85030522a44d74f
 
     def format_data(self, data):
         data_dict = {
