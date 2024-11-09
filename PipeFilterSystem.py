@@ -6,6 +6,8 @@ import glob
 import re
 import datetime
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 class PipeFilterSystem:
     def initialize_system(self, parent, filters):
@@ -72,34 +74,55 @@ class LastFilter(Filter):
     def process_data(self, data):
         data_array = []
         year = datetime.datetime.now().year
-        phraser = BeautifulPhraser.Pharser(self.command_handler)
-        worker = SeleniumWorker.SeleniumWorker()
 
-        for item in data:
-            if item[1] == None:
-                for i in range(9):
-                    worker.fetch_data_with_dates_and_key(f"01.01.{year-10+i}", f"01.01.{year-9+i}", item[0])
-                    while worker.html == "": time.sleep(1)
-                    self.merge_data(phraser.get_data_from_html(item[0], worker.return_html()))
+        # Record the start time of the process
+        start_time = time.time()
 
-            worker.fetch_data_with_dates_and_key(f"01.01.{year}", worker.get_current_date(), item[0])
-            while worker.html == "": time.sleep(1)
-            self.merge_data(phraser.get_data_from_html(item[0], worker.return_html()))
-            
-            data_item = [self.return_data(), item[0]]
-            data_array.append(data_item)
-            FileManager.save_data_to_csv(data_item[0], item[0])
-            
+        # Create a function to process each item in a separate thread
+        def process_item(item):
+            try:
+                worker = SeleniumWorker.SeleniumWorker()
+                phraser = BeautifulPhraser.Pharser(self.command_handler)
+                if item[1] is None:
+                    # Run for 9 years and process data
+                    for i in range(9):
+                        worker.fetch_data_with_dates_and_key(f"01.01.{year-10+i}", f"01.01.{year-9+i}", item[0])
+                        worker.merge_data(phraser.get_data_from_html(item[0], worker.return_html()))
+                        worker.html = ""
+                    print("Last Run.")
+                    worker.fetch_data_with_dates_and_key(f"01.01.{year}", worker.get_current_date(), item[0])
+                    worker.merge_data(phraser.get_data_from_html(item[0], worker.return_html()))
+                    worker.html = ""
+
+                    data_item = [worker.return_data(), item[0]]
+                    data_array.append(data_item)
+                    FileManager.save_data_to_csv(data_item[0], item[0])
+                else:
+                    current_date = worker.convert_from_name_to_date(item[1])
+                    if worker.is_date_older_than_today(current_date):
+                        worker.fetch_data_with_dates_and_key(current_date, worker.get_current_date(), item[0])
+                        worker.merge_data(phraser.get_data_from_html(item[0], worker.return_html()))
+                        worker.html = ""
+                        data_item = [worker.return_data(), item[0]]
+                        data_array.append(data_item)
+                        FileManager.save_data_to_csv(data_item[0], item[0], True, item[1])
+            except Exception as e:
+                print(f"Error processing {item[0]}: {e}")
+
+        # Create a thread pool with a limit on the number of threads (e.g., 10 threads)
+        with ThreadPoolExecutor(max_workers=15) as executor:
+            # Submit tasks to the thread pool
+            for item in data:
+                executor.submit(process_item, item)
+        
+        # Record the end time of the process
+        end_time = time.time()
+
+        # Calculate and print the time taken
+        elapsed_time = end_time - start_time
+        self.command_handler.command_gui.history_text.insert("end", f"Data update completed in {elapsed_time:.2f} seconds.")
+        self.command_handler.command_gui.lock_history()
         return data_array
-
-    def merge_data(self, data):
-        for item in data:
-            self.data.append(item)
-
-    def return_data(self):
-        temp = self.data.copy()
-        self.data.clear()
-        return temp
 
 class Pipe:
     def __init__(self, filters):

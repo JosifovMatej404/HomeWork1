@@ -20,34 +20,40 @@ def format_supplier_data(data):
         })
     return formatted_data
 
-def get_field_names(data):
-    for key in data:
-        pass
-
-def save_data_to_csv(data, code):
-    """Save formatted supplier data to a CSV file named after the code, appending data without rewriting headers."""
-
-    # Define the directory and create it if it doesn't exist
+def save_data_to_csv(data, code, append_mode=False, date=datetime.datetime.now().date()):
+    """Save or append formatted supplier data to a CSV file named after the code."""
     directory = "supplier_data"
     if not os.path.exists(directory):
         os.makedirs(directory)
 
     # Define the filename based on the code and the current date
-    filename = os.path.join(directory, f"{code}_data_{datetime.datetime.now().date()}.csv")
+    filename = os.path.join(directory, f"{code}_data_{date}.csv")
+    new_name = filename
+    
+    if append_mode:
+        new_name = os.path.join(directory, f"{code}_data_{datetime.datetime.now().strftime("%d-%m-%y")}.csv")
 
-    # Check if the file already exists and has content
-    file_exists = os.path.isfile(filename)
-    has_content = file_exists and os.path.getsize(filename) > 0
+    # Format the data using format_supplier_data
+    data = format_supplier_data(data)
 
-    # Write data to CSV file in append mode
-    with open(filename, mode="a", newline="") as file:
+    # Check if the file exists (for appending or writing header)
+    file_exists = os.path.isfile(new_name)
+
+    # Choose the mode based on append_mode
+    mode = "a" if append_mode else "w"
+
+
+    # Open the file and write the data
+    with open(filename, mode=mode, newline="") as file:
         writer = csv.DictWriter(file, fieldnames=data[0].keys())
         
-        # Only write headers if the file doesn't already have content
-        if not has_content:
+        # Write the header only if the file doesn't exist or if appending is False
+        if not file_exists and not append_mode:
             writer.writeheader()
         
-        # Append data rows
-        writer.writerows(data)
+        if append_mode:
+            os.rename(filename, new_name)
 
-    print(f"Data saved successfully for code '{code}' in '{filename}'.")
+        # Write the formatted data to the file
+        writer.writerows(data)
+    print(f"Data {'appended to' if append_mode else 'saved to'} '{filename}'.")

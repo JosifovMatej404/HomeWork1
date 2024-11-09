@@ -18,7 +18,7 @@ class CommandHandler:
         self.command_gui.lock_history()
 
     def help_response(self):
-        self.command_gui.history_text.insert("end", "\nclear - clears the console\nget <name> - get specified supplier\nget suppliers - gets all available suppliers")
+        self.command_gui.history_text.insert("end", "\nclear - clears the console\nget <name> - display previous month for specified supplier\nget suppliers - display all available suppliers\nupdate all - update all supliers\nupdate <name> - update specified suplier -NOT YET IMPLEMENTED- ")
         self.command_gui.lock_history()
 
     def fail_response(self):
@@ -38,10 +38,14 @@ class CommandHandler:
         filter1 = CodeFilter(self)
         filter2 = DateFilter(self)
         filter3 = LastFilter(self)
+        self.command_gui.history_text.insert("end", "\nUpdating all suppliers...")
+        self.command_gui.lock_history()
+
         if query == "all":
             pfs = PipeFilterSystem()
             pfs.initialize_system(self, [filter1, filter2, filter3])
             pfs.filter_data()
+        
 
     def execute_command(self, command):
         command_array = command.split()
@@ -53,4 +57,6 @@ class CommandHandler:
         }
         # Execute the command or provide a default response
         commands.get(command_array[0].lower(), self.default_response)()
+
+    
 
