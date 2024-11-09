@@ -31,7 +31,6 @@ class Pharser:
         return data_array
     
     def get_data_array_from_html(self, path, html):
-        print("HTML" + str(html))
         soup = BeautifulSoup(html, 'html.parser')
         rows = soup.find_all("tr")
         header_data = self.get_headers(path)

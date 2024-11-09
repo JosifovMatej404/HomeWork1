@@ -38,10 +38,14 @@ class CommandHandler:
         filter1 = CodeFilter(self)
         filter2 = DateFilter(self)
         filter3 = LastFilter(self)
+        self.command_gui.history_text.insert("end", "\nUpdating all suppliers...")
+        self.command_gui.lock_history()
+
         if query == "all":
             pfs = PipeFilterSystem()
             pfs.initialize_system(self, [filter1, filter2, filter3])
             pfs.filter_data()
+        
 
     def execute_command(self, command):
         command_array = command.split()

@@ -20,27 +20,40 @@ def format_supplier_data(data):
         })
     return formatted_data
 
-def get_field_names(data):
-    for key in data:
-        pass
-
-def save_data_to_csv(data, code):
-    """Save formatted supplier data to a CSV file named after the code."""
+def save_data_to_csv(data, code, append_mode=False, date=datetime.datetime.now().date()):
+    """Save or append formatted supplier data to a CSV file named after the code."""
     directory = "supplier_data"
     if not os.path.exists(directory):
         os.makedirs(directory)
 
     # Define the filename based on the code and the current date
-    filename = os.path.join(directory, f"{code}_data_{datetime.datetime.now().date()}.csv")
+    filename = os.path.join(directory, f"{code}_data_{date}.csv")
+    new_name = filename
+    
+    if append_mode:
+        new_name = os.path.join(directory, f"{code}_data_{datetime.datetime.now()}.csv")
 
-
+    # Format the data using format_supplier_data
     data = format_supplier_data(data)
 
+    # Check if the file exists (for appending or writing header)
+    file_exists = os.path.isfile(new_name)
 
-    # Write data to CSV file
-    with open(filename, mode="w", newline="") as file:
+    # Choose the mode based on append_mode
+    mode = "a" if append_mode else "w"
+
+
+    # Open the file and write the data
+    with open(filename, mode=mode, newline="") as file:
         writer = csv.DictWriter(file, fieldnames=data[0].keys())
-        writer.writeheader()
-        writer.writerows(data)
+        
+        # Write the header only if the file doesn't exist or if appending is False
+        if not file_exists or not append_mode:
+            writer.writeheader()
+        
+        if append_mode:
+            os.rename(filename, new_name)
 
-    print(f"Data saved successfully for code '{code}' in '{filename}'.")
+        # Write the formatted data to the file
+        writer.writerows(data)
+    print(f"Data {'appended to' if append_mode else 'saved to'} '{filename}'.")
