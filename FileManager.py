@@ -31,7 +31,7 @@ def save_data_to_csv(data, code, append_mode=False, date=datetime.datetime.now()
     new_name = filename
     
     if append_mode:
-        new_name = os.path.join(directory, f"{code}_data_{datetime.datetime.now()}.csv")
+        new_name = os.path.join(directory, f"{code}_data_{datetime.datetime.now().strftime("%d-%m-%y")}.csv")
 
     # Format the data using format_supplier_data
     data = format_supplier_data(data)
@@ -48,7 +48,7 @@ def save_data_to_csv(data, code, append_mode=False, date=datetime.datetime.now()
         writer = csv.DictWriter(file, fieldnames=data[0].keys())
         
         # Write the header only if the file doesn't exist or if appending is False
-        if not file_exists or not append_mode:
+        if not file_exists and not append_mode:
             writer.writeheader()
         
         if append_mode:

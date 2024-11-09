@@ -86,8 +86,6 @@ class LastFilter(Filter):
                 if item[1] is None:
                     # Run for 9 years and process data
                     for i in range(9):
-                        #self.command_handler.command_gui.history_text.insert("end", f"\nDownloading 10 years history for {item[0]}.")
-                        #self.command_handler.command_gui.lock_history()
                         worker.fetch_data_with_dates_and_key(f"01.01.{year-10+i}", f"01.01.{year-9+i}", item[0])
                         worker.merge_data(phraser.get_data_from_html(item[0], worker.return_html()))
                         worker.html = ""
@@ -102,8 +100,6 @@ class LastFilter(Filter):
                 else:
                     current_date = worker.convert_from_name_to_date(item[1])
                     if worker.is_date_older_than_today(current_date):
-                        #self.command_handler.command_gui.history_text.insert("end", f"\nUpdating {item[0]} from {current_date} to {worker.get_current_date()}")
-                        #self.command_handler.command_gui.lock_history()
                         worker.fetch_data_with_dates_and_key(current_date, worker.get_current_date(), item[0])
                         worker.merge_data(phraser.get_data_from_html(item[0], worker.return_html()))
                         worker.html = ""
@@ -114,7 +110,7 @@ class LastFilter(Filter):
                 print(f"Error processing {item[0]}: {e}")
 
         # Create a thread pool with a limit on the number of threads (e.g., 10 threads)
-        with ThreadPoolExecutor(max_workers=20) as executor:
+        with ThreadPoolExecutor(max_workers=15) as executor:
             # Submit tasks to the thread pool
             for item in data:
                 executor.submit(process_item, item)
@@ -124,7 +120,7 @@ class LastFilter(Filter):
 
         # Calculate and print the time taken
         elapsed_time = end_time - start_time
-        self.command_handler.command_gui.history_text.insert("end", f"\nData update completed in {elapsed_time:.2f} seconds.")
+        self.command_handler.command_gui.history_text.insert("end", f"Data update completed in {elapsed_time:.2f} seconds.")
         self.command_handler.command_gui.lock_history()
         return data_array
 
